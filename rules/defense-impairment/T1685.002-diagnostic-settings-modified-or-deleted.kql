@@ -1,0 +1,32 @@
+// Name:            Diagnostic Settings created, modified or deleted
+// MITRE:           T1685.002 - Disable or Modify Tools: Disable or Modify Cloud Log
+//                  (legacy: T1562.008, Defense Evasion)
+// Tactic:          Defense Impairment (TA0112)
+// References:      https://attack.mitre.org/techniques/T1685/002/
+// Severity:        Medium - Frequent FPs from legitimate IaC pipelines and administrators. It becomes a high severity if the caller is an unknown user or service principal, or if the caller is known but the change was not approved.
+// Data source:     Subscription Activity Log via diagnostic setting diag-secops-lab-eus-001
+// Table:           AzureActivity
+// Entities:        Caller -> Account, CallerIpAddress -> IP, ResourceAffected -> AzureResource
+// Description:     Detects creation, modification or deletion of any Diagnostic Setting.
+//                  Adversaries modify/disable Diagnostic Settings to manipulate and evade detection or redirect logs to an attacker-controlled destination.
+//                  Failed attempts may indicate an attacker lacking sufficient privileges.
+// False positives: - IaC pipeline (Terraform via GitHub Actions): Caller is the pipeline's service principal.
+//                  Validate against a recent commit/PR.
+//                  Candidate for allowlist once OIDC is configured. (Lab: currently the owner's user.)
+//                  - Administrators making manual changes: Caller is a known admin account.
+//                  Validate against an approved change ticket. No ticket = escalate.
+//                  - Azure Policy (DeployIfNotExists): Caller is a known GUID, the managed identity of the policy assignment.
+//                  Validate that the target resource was recently created or remediated.
+//                  - Sentinel/Defender data connectors: Caller used to be the service name (to be tested)
+//                  Check if the event time matches a data connector activation. If yes, then it's a false positive. If no, then escalate.
+// Known gaps:      Entra ID (tenant-level) diagnostic settings may not appear in AzureActivity.
+//                  Deleting diag-secops-lab-eus-001 may stop this data source (to be tested).
+// TODO:            Add 'properties' from 'START' logs, to show what has been modified
+//                  Add dynamic severity based on caller (known vs unknown) and activity status (success vs failure)
+
+AzureActivity
+| where OperationNameValue in~ ("MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE", "MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/WRITE")
+| where ActivityStatusValue !~ "Start"
+| extend ResourceAffected = extract(@"(?i)^(.*)/providers/microsoft\.insights", 1, _ResourceId)
+| extend DiagnosticSettingsName = extract(@"(?i)diagnosticsettings/([^/]+)", 1, _ResourceId)
+| project TimeGenerated, CorrelationId, ResourceAffected, DiagnosticSettingsName, OperationNameValue, ActivityStatusValue, Caller, CallerIpAddress, _ResourceId
