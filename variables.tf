@@ -27,9 +27,3 @@ variable "location" {
   default     = "eastus"
   description = "The location of the resource group."
 }
-
-variable "sub_id" {
-  type        = list(string)
-  description = "The subscription ID where the resources will be created."
-  sensitive   = true
-}

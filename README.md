@@ -52,7 +52,7 @@ I manually created a diagnostic setting, edited it, and deleted it. These operat
 ## Lessons learned
 - Activity Log events come in pairs. My first version raised two alerts per change, because Azure logs a `Start` event and a `Success/Failure` event for each operation. I filtered out `Start` but kept failures, since a failed attempt can be an attacker without enough permissions.  
 Lesson: Understand how the data source logs events before writing the detection.
-- The rule depends on the log it protects. If the subscripion-level diagnostic settings is deleted, logs stop being ingested, which may stop alerts and incidents.  
+- The rule depends on the log it protects. If the subscription-level diagnostic setting is deleted, logs stop being ingested, which may stop alerts and incidents.  
 Lesson: Every detection has its own limitations. You must document everything.
 - If anything is edited in the Diagnostic Settings, it only shows in the `Start` event. Neither the `Success` nor the `Failure` event shows what changed.  
 Lesson: Sometimes the context lies in a different event. A correlation must be created to show everything the responder needs.
