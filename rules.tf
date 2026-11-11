@@ -5,8 +5,8 @@ resource "azurerm_sentinel_alert_rule_scheduled" "diagnostic_settings" {
   description                = "Detects when a diagnostic setting is created, modified or deleted. This can be used to impair the ability to detect malicious activity in Azure."
   severity                   = "Medium"
   query                      = file("${path.module}/rules/defense-impairment/T1685.002-diagnostic-settings-modified-or-deleted.kql")
-  query_frequency            = "PT1H"
-  query_period               = "PT1H"
+  query_frequency            = "PT30M"
+  query_period               = "PT30M"
   event_grouping { aggregation_method = "AlertPerResult" }
   entity_mapping {
     entity_type = "Account"
