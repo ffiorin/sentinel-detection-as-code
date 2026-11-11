@@ -4,11 +4,11 @@ Microsoft Sentinel and its detection rules deployed with Terraform: KQL detectio
 
 ## Problem
 
-- Why are manually created/edited detection rules a problem?  
+- **Why are manually created/edited detection rules a problem?**  
 Everything is done manually (GUI-based). The team has to perform manual tests and adjustments if needed. There is no version control, or just a basic history.
 Scalability is difficult and depends on the tool.
 
-- Why this detection matters  
+- **Why this detection matters**  
 If an attacker can turn off or redirect logs, every other detection goes blind. This rule watches for changes to the settings that send Azure logs to Sentinel.
 
 ## What I built
@@ -97,5 +97,5 @@ You can use: `az login`
 - [ ] NRT rule to reduce detection time
 - [ ] Enrich the alert with the request body (join via CorrelationId)
 
-## Disclaimer
-Lab project in a personal Azure subscription. Not production.
+### Disclaimer
+<sup>Lab project in a personal Azure subscription. Not production.</sup>
